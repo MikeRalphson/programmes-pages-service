@@ -12,6 +12,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
  * @ORM\Table(indexes={
  *      @ORM\Index(name="category_ancestry_idx", columns={"ancestry"}),
  *      @ORM\Index(name="category_type_idx", columns={"type"}),
+ *      @ORM\Index(name="category_url_key_idx", columns={"url_key"}),
  * })
  * @ORM\Entity(repositoryClass="BBC\ProgrammesPagesService\Data\ProgrammesDb\EntityRepository\CategoryRepository")
  * @Gedmo\Tree(type="materializedPath", cascadeDeletes=false)

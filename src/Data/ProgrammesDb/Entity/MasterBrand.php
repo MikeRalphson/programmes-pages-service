@@ -7,7 +7,12 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use DateTime;
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(
+ * indexes={
+ *   @ORM\Index(name="master_brand_mid_idx", columns={"mid"}),
+ *   @ORM\Index(name="master_brand_url_key_idx", columns={"url_key"}),
+ *  }
+ * )
  */
 class MasterBrand
 {
