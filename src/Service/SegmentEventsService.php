@@ -23,9 +23,14 @@ class SegmentEventsService extends AbstractService
 
     public function findByPidFull(Pid $pid): ?SegmentEvent
     {
-        $dbEntity = $this->repository->findByPidFull($pid);
+        // get or set the result from cache
+        $cacheKey = $pid;
+        $mappedEntity = $this->getOrSetCache($cacheKey, 500, function () use ($pid) {
+            $dbEntity = $this->repository->findByPidFull($pid);
+            return $this->mapSingleEntity($dbEntity);
+        });
 
-        return $this->mapSingleEntity($dbEntity);
+        return $mappedEntity;
     }
 
     public function findLatestBroadcastedForContributor(

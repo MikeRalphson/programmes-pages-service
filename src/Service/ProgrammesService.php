@@ -121,18 +121,28 @@ class ProgrammesService extends AbstractService
     {
         $this->assertEntityType($entityType, self::ALL_VALID_ENTITY_TYPES);
 
-        $dbEntity = $this->repository->findByPid($pid, $entityType);
+        // get or set the result from cache
+        $cacheKey = $pid .'_'. $entityType;
+        $mappedEntity = $this->getOrSetCache($cacheKey, 500, function () use ($pid, $entityType) {
+            $dbEntity = $this->repository->findByPid($pid, $entityType);
+            return $this->mapSingleEntity($dbEntity);
+        });
 
-        return $this->mapSingleEntity($dbEntity);
+        return $mappedEntity;
     }
 
     public function findByPidFull(Pid $pid, string $entityType = 'Programme'): ?Programme
     {
         $this->assertEntityType($entityType, self::ALL_VALID_ENTITY_TYPES);
 
-        $dbEntity = $this->repository->findByPidFull($pid, $entityType);
+        // get or set the result from cache
+        $cacheKey = $pid .'_'. $entityType;
+        $mappedEntity = $this->getOrSetCache($cacheKey, 500, function () use ($pid, $entityType) {
+            $dbEntity = $this->repository->findByPidFull($pid, $entityType);
+            return $this->mapSingleEntity($dbEntity);
+        });
 
-        return $this->mapSingleEntity($dbEntity);
+        return $mappedEntity;
     }
 
     public function findEpisodeGuideChildren(
@@ -140,18 +150,29 @@ class ProgrammesService extends AbstractService
         ?int $limit = self::DEFAULT_LIMIT,
         int $page = self::DEFAULT_PAGE
     ): array {
-        $dbEntities = $this->repository->findEpisodeGuideChildren(
-            $programme->getDbId(),
-            $limit,
-            $this->getOffset($limit, $page)
-        );
+        // get or set the result from cache
+        $cacheKey = $programme->getPid() .'_'. $limit .'_'. $page;
+        $mappedEntity = $this->getOrSetCache($cacheKey, 500, function () use ($programme, $limit, $page) {
+            $dbEntities = $this->repository->findEpisodeGuideChildren(
+                $programme->getDbId(),
+                $limit,
+                $this->getOffset($limit, $page)
+            );
+            return $this->mapManyEntities($dbEntities);
+        });
 
-        return $this->mapManyEntities($dbEntities);
+        return $mappedEntity;
     }
 
     public function countEpisodeGuideChildren(Programme $programme): int
     {
-        return $this->repository->countEpisodeGuideChildren($programme->getDbId());
+        // get or set the result from cache
+        $cacheKey = $programme->getPid();
+        $numberOfEpisodes = $this->getOrSetCache($cacheKey, 500, function () use ($programme) {
+            return $this->repository->countEpisodeGuideChildren($programme->getDbId());
+        });
+
+        return $numberOfEpisodes;
     }
 
     public function findNextSiblingByProgramme(Programme $programme): ?Programme

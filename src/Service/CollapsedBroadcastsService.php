@@ -55,18 +55,24 @@ class CollapsedBroadcastsService extends AbstractService
         ?int $limit = self::DEFAULT_LIMIT,
         int $page = self::DEFAULT_PAGE
     ): array {
-        $broadcasts = $this->repository->findPastByProgramme(
-            $programme->getDbAncestryIds(),
-            false,
-            ApplicationTime::getTime(),
-            $limit,
-            $this->getOffset($limit, $page)
-        );
+        // get or set the result from cache
+        $cacheKey = $programme->getPid() .'_'. $limit .'_'. $page;
+        $mappedEntity = $this->getOrSetCache($cacheKey, 500, function () use ($programme, $limit, $page) {
+            $broadcasts = $this->repository->findPastByProgramme(
+                $programme->getDbAncestryIds(),
+                false,
+                ApplicationTime::getTime(),
+                $limit,
+                $this->getOffset($limit, $page)
+            );
 
-        $broadcasts = $this->stripWebcasts($broadcasts);
-        $services = $this->fetchUsedServices($broadcasts);
+            $broadcasts = $this->stripWebcasts($broadcasts);
+            $services = $this->fetchUsedServices($broadcasts);
 
-        return $this->mapManyEntities($broadcasts, $services);
+            return $this->mapManyEntities($broadcasts, $services);
+        });
+
+        return $mappedEntity;
     }
 
     public function findUpcomingByProgramme(
@@ -74,27 +80,38 @@ class CollapsedBroadcastsService extends AbstractService
         ?int $limit = self::DEFAULT_LIMIT,
         int $page = self::DEFAULT_PAGE
     ): array {
-        $broadcasts = $this->repository->findUpcomingByProgramme(
-            $programme->getDbAncestryIds(),
-            false,
-            ApplicationTime::getTime(),
-            $limit,
-            $this->getOffset($limit, $page)
-        );
+        // get or set the result from cache
+        $cacheKey = $programme->getPid() .'_'. $limit .'_'. $page;
+        $mappedEntity = $this->getOrSetCache($cacheKey, 500, function () use ($programme, $limit, $page) {
+            $broadcasts = $this->repository->findUpcomingByProgramme(
+                $programme->getDbAncestryIds(),
+                false,
+                ApplicationTime::getTime(),
+                $limit,
+                $this->getOffset($limit, $page)
+            );
 
-        $broadcasts = $this->stripWebcasts($broadcasts);
-        $services = $this->fetchUsedServices($broadcasts);
+            $broadcasts = $this->stripWebcasts($broadcasts);
+            $services = $this->fetchUsedServices($broadcasts);
 
-        return $this->mapManyEntities($broadcasts, $services);
+            return $this->mapManyEntities($broadcasts, $services);
+        });
+
+        return $mappedEntity;
     }
 
     public function countUpcomingByProgramme(Programme $programme): int
     {
-        return $this->repository->countUpcomingByProgramme(
-            $programme->getDbAncestryIds(),
-            false,
-            ApplicationTime::getTime()
-        );
+        // get or set the result from cache
+        $cacheKey = $programme->getPid();
+        $numberOfUpcoming = $this->getOrSetCache($cacheKey, 500, function () use ($programme) {
+            return $this->repository->countUpcomingByProgramme(
+                $programme->getDbAncestryIds(),
+                false,
+                ApplicationTime::getTime()
+            );
+        });
+        return $numberOfUpcoming;
     }
 
     public function findByCategoryAndStartAtDateRange(

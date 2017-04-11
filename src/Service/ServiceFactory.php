@@ -74,7 +74,8 @@ class ServiceFactory
                 $this->entityManager->getRepository('ProgrammesPagesService:CollapsedBroadcast'),
                 $this->mapperFactory->getCollapsedBroadcastMapper(),
                 $this->cacheItemPoolInterface,
-                $this->entityManager->getRepository('ProgrammesPagesService:Service')
+                $this->entityManager->getRepository('ProgrammesPagesService:Service'),
+                $this->cacheItemPoolInterface
             );
         }
 
