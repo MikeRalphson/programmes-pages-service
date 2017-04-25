@@ -6,10 +6,18 @@ class MapperFactory
 {
     protected $instances = [];
 
+    protected $domainModelClasses;
+
+    public function __construct(array $domainModelClasses = [])
+    {
+        $this->domainModelClasses = $domainModelClasses;
+    }
+
     public function getAtozTitleMapper(): AtozTitleMapper
     {
         if (!isset($this->instances['AtozTitleMapper'])) {
-            $this->instances['AtozTitleMapper'] = new AtozTitleMapper($this);
+            $domainModelClass = $this->domainModelClasses['AtozTitle'] ?? '';
+            $this->instances['AtozTitleMapper'] = new AtozTitleMapper($this, $domainModelClass);
         }
 
         return $this->instances['AtozTitleMapper'];

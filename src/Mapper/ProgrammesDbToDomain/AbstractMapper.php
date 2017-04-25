@@ -12,9 +12,22 @@ abstract class AbstractMapper implements MapperInterface
 
     protected $mapperFactory;
 
-    public function __construct(MapperFactory $mapperFactory)
+    protected $domainClass;
+
+    public function __construct(MapperFactory $mapperFactory, string $className = '')
     {
         $this->mapperFactory = $mapperFactory;
+        // Use voodoo to allow overriding type of domain model to a subclass
+        // of the default
+        if (!empty($className)) {
+            if (!class_exists($className)) {
+                throw new \InvalidArgumentException("$className does not exist");
+            }
+            if (!is_a($className, $this->domainClass, true)) {
+                throw new \InvalidArgumentException("$className is not a sub-class of $this->domainClass");
+            }
+            $this->domainClass = $className;
+        }
     }
 
     public function getCacheKey(array $dbEntity): string

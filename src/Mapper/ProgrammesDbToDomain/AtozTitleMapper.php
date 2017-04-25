@@ -11,6 +11,8 @@ class AtozTitleMapper extends AbstractMapper
 {
     private $cache = [];
 
+    protected $domainClass = 'BBC\\ProgrammesPagesService\\Domain\\Entity\\AtozTitle';
+
     public function getCacheKey(array $dbAtozTitle): string
     {
         return $this->buildCacheKey($dbAtozTitle, 'id', [
@@ -23,7 +25,7 @@ class AtozTitleMapper extends AbstractMapper
         $cacheKey = $this->getCacheKey($dbAtozTitle);
 
         if (!isset($this->cache[$cacheKey])) {
-            $this->cache[$cacheKey] = new AtozTitle(
+            $this->cache[$cacheKey] = new $this->domainClass(
                 $dbAtozTitle['title'],
                 $dbAtozTitle['firstLetter'],
                 $this->getCoreEntityModel($dbAtozTitle)
